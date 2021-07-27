@@ -87,12 +87,31 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return configuration;
   }
 
+  /**
+   * 创建打开OpenSession 通过数据源
+   * @param execType
+   * @param level
+   * @param autoCommit
+   * @return
+   */
   private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
     try {
+      //获取环境配置变量
       final Environment environment = configuration.getEnvironment();
+      //获取事务管理器工厂
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+      // Transaction--->JdbcTransactionFactory和 ManagedTransactionFactory
+      //根据xml配置 具体详细作用参照Mybatis3文档 此处配置为Jdbc
+      //Jdbc会使用提交回滚， Managed没有提交回滚而是使用容器管理生命周期
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+      //获取执行器
+      //Executor 分为两大类：一类是CacheExecutor 和普通Executor
+      //普通Executor执行器类型有三种： SIMPLE, REUSE, BATCH
+      //SimpleExecutor：每执行一次select或者update 都会开启一个Statement对象，用完会关闭statement对象
+      //ReuseExecutor: 执行update或者select，以sql作为key去查找Statement对象，存在就使用，不存在就创建。用完不会关闭statement对象，
+      //              会放在Map<String, Statement>中，重复使用。
+      //BatchExecutor: 批处理Executor，与Jdbc批处理一致，没有select；
       final Executor executor = configuration.newExecutor(tx, execType);
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {

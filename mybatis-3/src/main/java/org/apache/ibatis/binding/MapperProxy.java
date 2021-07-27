@@ -46,7 +46,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private final Map<Method, MapperMethodInvoker> methodCache;
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethodInvoker> methodCache) {
-    this.sqlSession = sqlSession;
+    this.sqlSession = sqlSession; //DefaultSqlSession
     this.mapperInterface = mapperInterface;
     this.methodCache = methodCache;
   }
@@ -77,6 +77,14 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     lookupConstructor = lookup;
   }
 
+  /**
+   * mapper方法调用 会进入这里代理
+   * @param proxy
+   * @param method
+   * @param args
+   * @return
+   * @throws Throwable
+   */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
@@ -92,6 +100,8 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
+      //computeIfAbsent java8新方法： 判断Map->methodCache, method是map中key，如果通过key取出
+      // 的value为空，则直接new一个MapperMethodInvoker。
       return MapUtil.computeIfAbsent(methodCache, method, m -> {
         if (m.isDefault()) {
           try {
@@ -142,6 +152,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
+      //mapperMethod 判断执行哪个方法 CRUD
       return mapperMethod.execute(sqlSession, args);
     }
   }

@@ -665,6 +665,12 @@ public class Configuration {
     return newExecutor(transaction, defaultExecutorType);
   }
 
+  /**
+   * 获取执行器 interceptorChain生成代理类。
+   * @param transaction
+   * @param executorType
+   * @return
+   */
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
     executorType = executorType == null ? defaultExecutorType : executorType;
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
@@ -679,7 +685,9 @@ public class Configuration {
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
+    //责任链生成代理类 @Intercepts
     executor = (Executor) interceptorChain.pluginAll(executor);
+    //返回的代理对象
     return executor;
   }
 
@@ -843,6 +851,9 @@ public class Configuration {
   }
 
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    //mapperRegistry:一个mapper注册容器， 注册了所有已经解析过的mapper.xml
+    //mapperRegistry：的key是对应接口的Class类型
+    //mapperRegistry:的value是MapperProxyFactory，用于生成对应的MapperProxy（动态代理类）
     return mapperRegistry.getMapper(type, sqlSession);
   }
 
