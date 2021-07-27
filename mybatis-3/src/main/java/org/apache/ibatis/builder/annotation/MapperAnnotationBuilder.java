@@ -112,18 +112,28 @@ public class MapperAnnotationBuilder {
     this.type = type;
   }
 
+  /**
+   * 解析mapper映射文件 如UserMapper.xml
+   */
   public void parse() {
     String resource = type.toString();
+    //是否已经解析过mapper接口对应的xml
     if (!configuration.isResourceLoaded(resource)) {
+      //根据mapper接口名获取对应mapper.xml文件解析，
+      //将其中解析<mapper></mapper>中的内容放进configuration中。
       loadXmlResource();
+      //添加已经解析过的标记  将已经解析的放入到hashSet中
       configuration.addLoadedResource(resource);
+
       assistant.setCurrentNamespace(type.getName());
       parseCache();
       parseCacheRef();
+      //
       for (Method method : type.getMethods()) {
         if (!canHaveStatement(method)) {
           continue;
         }
+        //获取所有方法 判断是否使用的注解 如果用了注解会解析为MappedStatement
         if (getAnnotationWrapper(method, false, Select.class, SelectProvider.class).isPresent()
             && method.getAnnotation(ResultMap.class) == null) {
           parseResultMap(method);
@@ -158,10 +168,14 @@ public class MapperAnnotationBuilder {
     }
   }
 
+  /**
+   * 解析xml
+   */
   private void loadXmlResource() {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
+    //为防止Spring不知道真正的resource name 设置标志，以防多次解析
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
       String xmlResource = type.getName().replace('.', '/') + ".xml";
       // #1347
@@ -175,6 +189,8 @@ public class MapperAnnotationBuilder {
         }
       }
       if (inputStream != null) {
+        //解析xml映射文件 userMapper.xml
+        //XMLMapperBuilder 解析mapper.xml文件
         XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
         xmlParser.parse();
       }

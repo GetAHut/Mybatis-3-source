@@ -40,6 +40,7 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 public class CacheBuilder {
   private final String id;
   private Class<? extends Cache> implementation;
+  //装饰者模式调用链
   private final List<Class<? extends Cache>> decorators;
   private Integer size;
   private Long clearInterval;
@@ -89,12 +90,19 @@ public class CacheBuilder {
     return this;
   }
 
+  /**
+   * 创建Cache对象 使用了装饰器模式， 一层套一层
+   *  链式实现
+   * @return
+   */
   public Cache build() {
     setDefaultImplementations();
     Cache cache = newBaseCacheInstance(implementation, id);
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
+    //自定义缓存则不适用装饰器模式
     if (PerpetualCache.class.equals(cache.getClass())) {
+      //装饰者模式调用链 包装
       for (Class<? extends Cache> decorator : decorators) {
         cache = newCacheDecoratorInstance(decorator, cache);
         setCacheProperties(cache);
@@ -115,6 +123,11 @@ public class CacheBuilder {
     }
   }
 
+  /**
+   * 装饰器调用
+   * @param cache
+   * @return
+   */
   private Cache setStandardDecorators(Cache cache) {
     try {
       MetaObject metaCache = SystemMetaObject.forObject(cache);

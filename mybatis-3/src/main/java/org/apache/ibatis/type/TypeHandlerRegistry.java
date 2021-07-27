@@ -79,6 +79,7 @@ public final class TypeHandlerRegistry {
   public TypeHandlerRegistry(Configuration configuration) {
     this.unknownTypeHandler = new UnknownTypeHandler(configuration);
 
+    //布尔类型处理器， 并设置参数
     register(Boolean.class, new BooleanTypeHandler());
     register(boolean.class, new BooleanTypeHandler());
     register(JdbcType.BOOLEAN, new BooleanTypeHandler());

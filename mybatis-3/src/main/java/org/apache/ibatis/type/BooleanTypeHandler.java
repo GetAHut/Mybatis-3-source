@@ -25,6 +25,14 @@ import java.sql.SQLException;
  */
 public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
 
+  /**
+   * PreparedStatement 通过PreparedStatement对象设置参数
+   * @param ps
+   * @param i
+   * @param parameter
+   * @param jdbcType
+   * @throws SQLException
+   */
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Boolean parameter, JdbcType jdbcType)
       throws SQLException {

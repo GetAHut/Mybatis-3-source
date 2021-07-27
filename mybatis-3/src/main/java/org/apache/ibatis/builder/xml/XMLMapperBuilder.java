@@ -92,9 +92,9 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   //解析映射文件
   public void parse() {
-    //判断是否已经加载过映射文件 。。  loadedResources
+    //判断是否已经加载过映射文件 。。  loadedResources  HashSet
     if (!configuration.isResourceLoaded(resource)) {
-      //解析mapper节点
+      //解析mapper节点 <重点>
       configurationElement(parser.evalNode("/mapper"));
       //将正在解析的resource添加到 loadedResources中 防止多次解析  loadedResources 为-> HashSet<String>
       configuration.addLoadedResource(resource);
@@ -156,6 +156,11 @@ public class XMLMapperBuilder extends BaseBuilder {
     buildStatementFromContext(list, null);
   }
 
+  /**
+   * 解析 UserMapper.xml中sql语句 <select></select> <update></update>...
+   * @param list
+   * @param requiredDatabaseId
+   */
   private void buildStatementFromContext(List<XNode> list, String requiredDatabaseId) {
     for (XNode context : list) {
       //使用XMLStatementBuilder解析每个节点
@@ -234,15 +239,27 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheElement(XNode context) {
     if (context != null) {
+      //解析cache节点的的type（缓存实现类）属性， 默认实现类
       String type = context.getStringAttribute("type", "PERPETUAL");
+      //通过type 获取Class类型
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      //解析 cache节点的eviction：缓存回收策略， 默认是LRU
+      //    LRU - 最近最少回收，移除最长时间不被使用的对象
+      //    FIFO - 先进先出，按照缓存进入的顺序来移除它们
+      //    SOFT - 软引用，移除基于垃圾回收器状态和软引用规则的对象
+      //    WEAK - 弱引用，更积极的移除基于垃圾收集器和弱引用规则的对象
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      //解析cache节点的flushInterval属性，缓存刷新间隔，
       Long flushInterval = context.getLongAttribute("flushInterval");
+      //size: （引用数目） 属性可以被设置为任意正整数， 但是需保证运行环境中的内存资源。
       Integer size = context.getIntAttribute("size");
+      //readOnly: 是否只读， true只读， false 读写， 默认读写。
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+      //blocking： 阻塞状态。 是否设置缓存中找到对应key返回， 若找不到则blocking，直到有对应的key进入缓存。  默认false
       boolean blocking = context.getBooleanAttribute("blocking", false);
       Properties props = context.getChildrenAsProperties();
+      //创建实例
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }

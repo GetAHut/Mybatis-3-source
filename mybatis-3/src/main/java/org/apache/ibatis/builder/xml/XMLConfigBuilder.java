@@ -67,6 +67,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public XMLConfigBuilder(Reader reader, String environment, Properties props) {
+    //XPathParser
     this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
@@ -245,11 +246,13 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
-        // <plugin interceptor>
+        // <plugin interceptor> 获取完整类名
         String interceptor = child.getStringAttribute("interceptor");
         Properties properties = child.getChildrenAsProperties();
+        //通过反射实例化
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).getDeclaredConstructor().newInstance();
         interceptorInstance.setProperties(properties);
+        //将所有解析的插件都设置到chain中
         configuration.addInterceptor(interceptorInstance);
       }
     }
@@ -457,6 +460,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
         //两种配置方式 package  和 mapper
+        //其中mapper分三种方式
         //解析package
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");

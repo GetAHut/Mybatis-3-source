@@ -126,6 +126,7 @@ public class Configuration {
   protected Integer defaultStatementTimeout;
   protected Integer defaultFetchSize;
   protected ResultSetType defaultResultSetType;
+  //默认Executor执行器类型
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
@@ -148,11 +149,16 @@ public class Configuration {
   protected Class<?> configurationFactory;
 
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  //插脚调用链   责任链调用
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  //类型处理器注册器  new的过程中就创建了默认类型处理器
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
+  //别名库  new的时候 注册了默认别名
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  //Mapped Statements collection
+  //存放UserMapper.xml文件中对应的增删改查节点的sql Statement
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -161,7 +167,9 @@ public class Configuration {
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
+  //已经解析过的mapper.xml 起标志作用。
   protected final Set<String> loadedResources = new HashSet<>();
+  //Usermapper.xml中的<sql>片段
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();

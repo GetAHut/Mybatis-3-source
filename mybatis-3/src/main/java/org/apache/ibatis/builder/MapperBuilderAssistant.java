@@ -121,6 +121,17 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
   }
 
+  /**
+   * 创建cache实例 ， 使用了构造器模式
+   * @param typeClass
+   * @param evictionClass
+   * @param flushInterval
+   * @param size
+   * @param readWrite
+   * @param blocking
+   * @param props
+   * @return
+   */
   public Cache useNewCache(Class<? extends Cache> typeClass,
       Class<? extends Cache> evictionClass,
       Long flushInterval,
@@ -137,6 +148,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .blocking(blocking)
         .properties(props)
         .build();
+    //将装饰好的Cache对象存入Configuration
     configuration.addCache(cache);
     currentCache = cache;
     return cache;
@@ -270,6 +282,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
+    //得到的MappedStatement  是UserMapper.xml中的对应增删改查每一个节点的Statement
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
         .resource(resource)
         .fetchSize(fetchSize)
@@ -293,7 +306,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
       statementBuilder.parameterMap(statementParameterMap);
     }
 
+    //得到的MappedStatement  是UserMapper.xml中的对应增删改查每一个节点的Statement
     MappedStatement statement = statementBuilder.build();
+    //将解析到的MapperStatement 添加到configuration
     configuration.addMappedStatement(statement);
     return statement;
   }

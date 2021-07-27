@@ -27,6 +27,7 @@ import org.apache.ibatis.cache.Cache;
  */
 public class LruCache implements Cache {
 
+  //装饰器设计模式， 一层套一层
   private final Cache delegate;
   private Map<Object, Object> keyMap;
   private Object eldestKey;

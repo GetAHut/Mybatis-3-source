@@ -69,8 +69,11 @@ public class XMLStatementBuilder extends BaseBuilder {
     //获取语句类型
     String nodeName = context.getNode().getNodeName();
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
+    //判断是否是select节点
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+    //获取flushCache值 刷新缓存， 默认为isSelect的反值。 查询：默认flushCache=false， 增删改： 默认flushCache=true
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
+    //获取useCache值， 默认值为isSelect, 查询：useCache =true， 增删改：useCache = false
     boolean useCache = context.getBooleanAttribute("useCache", isSelect);
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
@@ -82,6 +85,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     Class<?> parameterTypeClass = resolveClass(parameterType);//参数类型 去别名库解析
 
     String lang = context.getStringAttribute("lang");
+    //用以解析xml中的sql语句
     LanguageDriver langDriver = getLanguageDriver(lang);
 
     // 解析 selectKey节点 Parse selectKey after includes and remove them.
@@ -113,7 +117,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
 
-    //创建SqlSource ， 获取sql语句
+    //创建SqlSource ， 获取sql语句 参数还未确定 将sql解析成一个一个的节点 SqlNode#contents
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     //可选 STATEMENT，PREPARED 或 CALLABLE。
     // 这会让 MyBatis 分别使用 Statement，PreparedStatement 或 CallableStatement，默认值：PREPARED。

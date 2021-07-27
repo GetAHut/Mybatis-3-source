@@ -47,6 +47,7 @@ public class SqlSessionFactoryBuilder {
   public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
     try {
       //parser-> 解析器 ，解析mybatis-config.xml配置文件， 将其中内容解析到Configuration中
+      //XMLConfigBuilder 构造器模式，用来解析Configuration配置类
       XMLConfigBuilder parser = new XMLConfigBuilder(reader, environment, properties);
       //解析 并创建DefaultSqlSessionFactory  parser.parse()返回的是一个装载好的configuration对象
       //通过配置文件 解析出来 configuration 那么肯定可以通过new configuration的方式来处理，来配置

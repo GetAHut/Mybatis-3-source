@@ -50,6 +50,7 @@ public class XPathParser {
   private boolean validation;
   private EntityResolver entityResolver;
   private Properties variables;
+  //xpath java 提供用以解析xml
   private XPath xpath;
 
   public XPathParser(String xml) {
