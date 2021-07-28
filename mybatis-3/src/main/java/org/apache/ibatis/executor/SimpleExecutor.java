@@ -54,7 +54,7 @@ public class SimpleExecutor extends BaseExecutor {
   }
 
   /**
-   * 查询
+   * 去数据库查询
    * @param ms
    * @param parameter
    * @param rowBounds
@@ -71,6 +71,7 @@ public class SimpleExecutor extends BaseExecutor {
     try {
       Configuration configuration = ms.getConfiguration();
       //内部封装了ResultHandler 和ParameterHandler
+      //Myabtis四大对象其一
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
       stmt = prepareStatement(handler, ms.getStatementLog());
       //StatementHandler封装了Statement
@@ -97,8 +98,11 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
+    //参数jdbc原始写法
+    //获取连接  dataSource
     Connection connection = getConnection(statementLog);
     stmt = handler.prepare(connection, transaction.getTimeout());
+    //处理参数   ParameterHandler#setParameter #setNonNullParameter
     handler.parameterize(stmt);
     return stmt;
   }

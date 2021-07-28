@@ -652,6 +652,8 @@ public class Configuration {
 
   public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+    //创建了ParameterHandler 代理类，  Myabtis四大对象之一
+    //Intercept 自定义拦截器， 执行所有拦截的plugin()方法。
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
   }
@@ -659,12 +661,16 @@ public class Configuration {
   public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+    //创建了resultSetHandler 代理类，  Myabtis四大对象之一
+    //Intercept 自定义拦截器， 执行所有拦截的plugin()方法。
     resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
     return resultSetHandler;
   }
 
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+    //创建StatementHandler的代理对象，
+    //Intercepts 自定义代理拦截， 执行所有拦截器的plugin()
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
@@ -694,6 +700,7 @@ public class Configuration {
       executor = new CachingExecutor(executor);
     }
     //责任链生成代理类 @Intercepts
+    //调用所有拦截器对象 plugin方法
     executor = (Executor) interceptorChain.pluginAll(executor);
     //返回的代理对象
     return executor;

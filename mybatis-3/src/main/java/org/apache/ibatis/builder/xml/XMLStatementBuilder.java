@@ -66,8 +66,9 @@ public class XMLStatementBuilder extends BaseBuilder {
       return;
     }
 
-    //获取语句类型
+    //获取节点名称
     String nodeName = context.getNode().getNodeName();
+    //获取语句类型
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
     //判断是否是select节点
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
@@ -78,6 +79,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
     // Include Fragments before parsing
+    //处理include片段
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode()); //解析include节点
 

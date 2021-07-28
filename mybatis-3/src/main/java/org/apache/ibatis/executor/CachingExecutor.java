@@ -84,7 +84,9 @@ public class CachingExecutor implements Executor {
 
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+    // 二级缓存处 解析sql  调用SqlSource中的SqlNode责任链
     BoundSql boundSql = ms.getBoundSql(parameterObject);
+    //缓存key 包含：namespace id 参数 sql语句 等；  rowBounds 伪分页
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }

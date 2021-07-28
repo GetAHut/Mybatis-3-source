@@ -41,9 +41,18 @@ public class Plugin implements InvocationHandler {
     this.signatureMap = signatureMap;
   }
 
+  /**
+   * 对四大对象的动态代理
+   * @param target
+   * @param interceptor
+   * @return
+   */
   public static Object wrap(Object target, Interceptor interceptor) {
+    //获取所有interceptor配置的@Signature的type
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
+    //获取代理对象类型
     Class<?> type = target.getClass();
+    //根据当前代理类型和@Signature指定的type做匹配， 存在相同则代理
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
       return Proxy.newProxyInstance(
@@ -59,6 +68,7 @@ public class Plugin implements InvocationHandler {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
       if (methods != null && methods.contains(method)) {
+        //调用自定义的intercept()
         return interceptor.intercept(new Invocation(target, method, args));
       }
       return method.invoke(target, args);
