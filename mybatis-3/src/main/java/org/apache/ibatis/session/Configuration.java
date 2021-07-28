@@ -117,7 +117,9 @@ public class Configuration {
   protected boolean shrinkWhitespacesInSql;
 
   protected String logPrefix;
+  //日志实现
   protected Class<? extends Log> logImpl;
+  //虚拟文件系统
   protected Class<? extends VFS> vfsImpl;
   protected Class<?> defaultSqlProviderType;
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
@@ -131,23 +133,28 @@ public class Configuration {
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
+  //配置文件 设置
   protected Properties variables = new Properties();
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+  //默认对象工厂实现
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
   protected boolean lazyLoadingEnabled = false;
+  //使用内部 Javassist 而不是 OGNL
   protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
 
   protected String databaseId;
   /**
    * Configuration factory class.
    * Used to create Configuration for loading deserialized unread properties.
-   *
+   *  Configuration工厂
+   *  用于创建加载反序列化未读属性的配置
    * @see <a href='https://github.com/mybatis/old-google-code-issues/issues/300'>Issue 300 (google code)</a>
    */
   protected Class<?> configurationFactory;
 
+  //mapper映射注册器 key mapper.class， value：对应的MapperProxyFactory<Mapper.class>
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
   //插脚调用链   责任链调用
   protected final InterceptorChain interceptorChain = new InterceptorChain();
@@ -155,6 +162,7 @@ public class Configuration {
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
   //别名库  new的时候 注册了默认别名
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+  //xml解析驱动注册器
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
   //Mapped Statements collection
@@ -181,6 +189,8 @@ public class Configuration {
    * A map holds cache-ref relationship. The key is the namespace that
    * references a cache bound to another namespace and the value is the
    * namespace which the actual cache is bound to.
+   * 映射保存缓存引用关系。键是引用绑定到另一个命名空间的缓存的命名空间，值是实际缓存绑定到的
+   * 命名空间
    */
   protected final Map<String, String> cacheRefMap = new HashMap<>();
 
@@ -189,25 +199,39 @@ public class Configuration {
     this.environment = environment;
   }
 
+  //通过XMlConfigBuilder创建Config
   public Configuration() {
+    //初始化两种事务工厂
+    //JDBC: 这个配置直接使用了Jdbc的提交和回滚设置。
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
+    //MANAGED：这个配置不会提交和回滚一个连接，他是依赖容器管理事务的生命周期。
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 
+    //初始化数据源工厂 （三种数据源类型）
+    //这个数据源实现是为了能在如 EJB 或应用服务器这类容器中使用，容器可以集中或在外部配置数据源，然后放置一个 JNDI 上下文的数据源引用
     typeAliasRegistry.registerAlias("JNDI", JndiDataSourceFactory.class);
+    //这种数据源的实现利用“池”的概念将 JDBC 连接对象组织起来，避免了创建新的连接实例时所必需的初始化和认证时间。
     typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
+    //这种数据源是每次请求都会打开或者关闭连接， 比较笨重。速度慢。
     typeAliasRegistry.registerAlias("UNPOOLED", UnpooledDataSourceFactory.class);
 
+    //缓存实现
+    //PerpetualCache.class 为默认缓存实现。 以下为缓存的几种实现策略。  通过装饰着模式 委托。
     typeAliasRegistry.registerAlias("PERPETUAL", PerpetualCache.class);
     typeAliasRegistry.registerAlias("FIFO", FifoCache.class);
     typeAliasRegistry.registerAlias("LRU", LruCache.class);
     typeAliasRegistry.registerAlias("SOFT", SoftCache.class);
     typeAliasRegistry.registerAlias("WEAK", WeakCache.class);
 
+    //DB_VENDOR： 数据库厂商相关
     typeAliasRegistry.registerAlias("DB_VENDOR", VendorDatabaseIdProvider.class);
 
+    //XMLLanguageDriver 解析动态sql， mybatis提供的默认解析xml驱动
     typeAliasRegistry.registerAlias("XML", XMLLanguageDriver.class);
+    //RawLanguageDriver 支持静态sql，不支持动态sql
     typeAliasRegistry.registerAlias("RAW", RawLanguageDriver.class);
 
+    //日志实现
     typeAliasRegistry.registerAlias("SLF4J", Slf4jImpl.class);
     typeAliasRegistry.registerAlias("COMMONS_LOGGING", JakartaCommonsLoggingImpl.class);
     typeAliasRegistry.registerAlias("LOG4J", Log4jImpl.class);
@@ -216,9 +240,12 @@ public class Configuration {
     typeAliasRegistry.registerAlias("STDOUT_LOGGING", StdOutImpl.class);
     typeAliasRegistry.registerAlias("NO_LOGGING", NoLoggingImpl.class);
 
+    //代理工厂
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
+    //JavassistProxyFactory：字节码生成代理
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
 
+    //设置默认xml解析驱动
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     languageRegistry.register(RawLanguageDriver.class);
   }
