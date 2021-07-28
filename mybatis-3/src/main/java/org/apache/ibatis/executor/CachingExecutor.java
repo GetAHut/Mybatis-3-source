@@ -102,7 +102,9 @@ public class CachingExecutor implements Executor {
         @SuppressWarnings("unchecked")
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
+          //缓存中没有去查一级缓存 BaseExecutor
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+          //存入缓存
           tcm.putObject(cache, key, list); // issue #578 and #116
         }
         return list;

@@ -29,6 +29,7 @@ public class PerpetualCache implements Cache {
 
   private final String id;
 
+  //一二级缓存存放；
   private final Map<Object, Object> cache = new HashMap<>();
 
   public PerpetualCache(String id) {
@@ -45,6 +46,7 @@ public class PerpetualCache implements Cache {
     return cache.size();
   }
 
+  //存
   @Override
   public void putObject(Object key, Object value) {
     cache.put(key, value);

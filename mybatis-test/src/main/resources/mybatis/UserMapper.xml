@@ -3,6 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wikr.mapper.UserMapper">
+    <cache></cache>
     <resultMap id="userResultMap" type="com.wikr.User">
         <id property="id"               column="id" />
         <result property="username"     column="username" />
