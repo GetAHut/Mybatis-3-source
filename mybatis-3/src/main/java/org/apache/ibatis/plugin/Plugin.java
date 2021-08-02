@@ -48,13 +48,15 @@ public class Plugin implements InvocationHandler {
    * @return
    */
   public static Object wrap(Object target, Interceptor interceptor) {
-    //获取所有interceptor配置的@Signature的type
+    //获取所有interceptor配置的@Signature的type， 以及代理方法
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     //获取代理对象类型
     Class<?> type = target.getClass();
     //根据当前代理类型和@Signature指定的type做匹配， 存在相同则代理
+    //比如判断是不是Executor的代理
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
+      //创建代理
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
@@ -78,6 +80,7 @@ public class Plugin implements InvocationHandler {
   }
 
   private static Map<Class<?>, Set<Method>> getSignatureMap(Interceptor interceptor) {
+    //获取所有@Intercepts
     Intercepts interceptsAnnotation = interceptor.getClass().getAnnotation(Intercepts.class);
     // issue #251
     if (interceptsAnnotation == null) {
@@ -88,6 +91,7 @@ public class Plugin implements InvocationHandler {
     for (Signature sig : sigs) {
       Set<Method> methods = MapUtil.computeIfAbsent(signatureMap, sig.type(), k -> new HashSet<>());
       try {
+        //获取代理方法
         Method method = sig.type().getMethod(sig.method(), sig.args());
         methods.add(method);
       } catch (NoSuchMethodException e) {

@@ -24,7 +24,9 @@ import org.apache.ibatis.transaction.TransactionFactory;
  */
 public final class Environment {
   private final String id;
+  //事务工厂配置  jdbc Managed
   private final TransactionFactory transactionFactory;
+  //数据源
   private final DataSource dataSource;
 
   public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {
@@ -42,6 +44,7 @@ public final class Environment {
     this.dataSource = dataSource;
   }
 
+  //构造者模式
   public static class Builder {
     private final String id;
     private TransactionFactory transactionFactory;

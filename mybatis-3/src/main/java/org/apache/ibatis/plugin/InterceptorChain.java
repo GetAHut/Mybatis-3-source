@@ -28,6 +28,7 @@ public class InterceptorChain {
 
   public Object pluginAll(Object target) {
     for (Interceptor interceptor : interceptors) {
+      //创建JDK动态代理 调用interceptors中所有@Interceptor接口中的plugin()方法
       target = interceptor.plugin(target);
     }
     return target;

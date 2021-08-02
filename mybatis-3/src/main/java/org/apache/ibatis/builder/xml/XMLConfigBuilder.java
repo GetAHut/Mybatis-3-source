@@ -363,7 +363,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           //解析数据源
           DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
           DataSource dataSource = dsFactory.getDataSource();
-          //构造者模式使用
+          //构造者模式使用 通过配置文件解析创建TransactionFactory；并加载到Configuration中。
           Environment.Builder environmentBuilder = new Environment.Builder(id)
               .transactionFactory(txFactory)
               .dataSource(dataSource);
