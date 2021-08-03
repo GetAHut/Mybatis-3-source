@@ -12,6 +12,7 @@
         <module>mybatis-test</module>
         <module>mybatis-3</module>
         <module>mybatis-parent</module>
+        <module>mybaits-spring</module>
     </modules>
 
 
