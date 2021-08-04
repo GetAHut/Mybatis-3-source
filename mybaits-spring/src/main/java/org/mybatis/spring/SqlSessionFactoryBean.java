@@ -635,6 +635,7 @@ public class SqlSessionFactoryBean
     //配置Mybatis Environment属性
     //配置事务管理器：
     // 如果没有指定mybatis的事务工厂， 则会开启spring的事务工厂管理器， 拿到spring的事务connection
+    // spring的事务同步 管理器 getConnection()
     targetConfiguration.setEnvironment(new Environment(this.environment,
         this.transactionFactory == null ? new SpringManagedTransactionFactory() : this.transactionFactory,
         this.dataSource));

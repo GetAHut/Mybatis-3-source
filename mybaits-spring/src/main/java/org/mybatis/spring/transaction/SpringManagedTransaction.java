@@ -77,6 +77,7 @@ public class SpringManagedTransaction implements Transaction {
    * false and will always call commit/rollback so we need to no-op that calls.
    */
   private void openConnection() throws SQLException {
+    //去获取Spring声明式事务时开启的事务 ，获取getConnection()
     this.connection = DataSourceUtils.getConnection(this.dataSource);
     this.autoCommit = this.connection.getAutoCommit();
     this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.connection, this.dataSource);
