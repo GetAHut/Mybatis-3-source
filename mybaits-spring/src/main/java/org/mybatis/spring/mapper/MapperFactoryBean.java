@@ -53,6 +53,7 @@ import org.springframework.beans.factory.FactoryBean;
  */
 public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements FactoryBean<T> {
 
+  //通过构造器模式传入所需代理的Mapper
   private Class<T> mapperInterface;
 
   private boolean addToConfig = true;
@@ -92,6 +93,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
    */
   @Override
   public T getObject() throws Exception {
+    //去Mybatis中创建Mapper动态代理
     return getSqlSession().getMapper(this.mapperInterface);
   }
 
@@ -125,6 +127,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
 
   /**
    * Return the mapper interface of the MyBatis mapper
+   * 返回mapper接口
    *
    * @return class of the interface
    */
@@ -135,10 +138,13 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
   /**
    * If addToConfig is false the mapper will not be added to MyBatis. This means it must have been included in
    * mybatis-config.xml.
+   * 如果addToConfig为false， 则mapper不会被添加到Mybatis中。这就意味着它已经在mybatis-config.xml配置了
    * <p>
    * If it is true, the mapper will be added to MyBatis in the case it is not already registered.
+   * 如果addToConfig为true， 则会在尚未注册的情况下注册到Mybatis中。
    * <p>
    * By default addToConfig is true.
+   * addToConfig默认为true
    *
    * @param addToConfig
    *          a flag that whether add mapper to MyBatis or not
@@ -149,6 +155,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
 
   /**
    * Return the flag for addition into MyBatis config.
+   * addToConfig判断标识
    *
    * @return true if the mapper will be added to MyBatis in the case it is not already registered.
    */

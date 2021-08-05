@@ -354,6 +354,8 @@ public class MapperScannerConfigurer
       processPropertyPlaceHolders();
     }
 
+    //Mybatis自定义的类扫描器   主要作用 重写Spring中判断Bean的方式， 将Mapper接口扫描进来
+    // 继承Spring的扫描器ClassPathBeanDefinitionScanner
     ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
     scanner.setAddToConfig(this.addToConfig);
     scanner.setAnnotationClass(this.annotationClass);
@@ -372,6 +374,7 @@ public class MapperScannerConfigurer
       scanner.setDefaultScope(defaultScope);
     }
     scanner.registerFilters();
+    //扫描
     scanner.scan(
         StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
   }

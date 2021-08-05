@@ -49,6 +49,12 @@ import org.springframework.util.StringUtils;
  * @see MapperFactoryBean
  * @see ClassPathMapperScanner
  * @since 1.2.0
+ *
+ *  @Import 注解 需实现ImportBeanDefinitionRegistrar接口
+ *          或者 实现ImportSelector
+ *          或者一些普通类
+ *
+ *   MapperScannerRegistrar ：用来解析@MapperScan注解
  */
 public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
@@ -64,10 +70,12 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
   }
 
   /**
+   * BeanDefinitionRegistry ：beanDefinition 注册器 只要注册进去 就能成为bean
    * {@inheritDoc}
    */
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    //获取@MapperScan注解
     AnnotationAttributes mapperScanAttrs = AnnotationAttributes
         .fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
     if (mapperScanAttrs != null) {
@@ -79,6 +87,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
   void registerBeanDefinitions(AnnotationMetadata annoMeta, AnnotationAttributes annoAttrs,
       BeanDefinitionRegistry registry, String beanName) {
 
+    //MapperScannerConfigurer.class 构建beanDefinition构造器
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
     builder.addPropertyValue("processPropertyPlaceHolders", true);
 
@@ -97,6 +106,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
       builder.addPropertyValue("nameGenerator", BeanUtils.instantiateClass(generatorClass));
     }
 
+    //MapperFactoryBean Spring整合Mybatis 关键性类。 FactoryBean
     Class<? extends MapperFactoryBean> mapperFactoryBeanClass = annoAttrs.getClass("factoryBean");
     if (!MapperFactoryBean.class.equals(mapperFactoryBeanClass)) {
       builder.addPropertyValue("mapperFactoryBeanClass", mapperFactoryBeanClass);

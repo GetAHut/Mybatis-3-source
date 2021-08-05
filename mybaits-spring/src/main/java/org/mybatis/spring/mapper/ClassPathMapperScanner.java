@@ -94,6 +94,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
   /**
    * Set whether enable lazy initialization for mapper bean.
+   * 设置是否对mapper bean延迟初始化 默认false
    * <p>
    * Default is {@code false}.
    * </p>
@@ -137,6 +138,8 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   /**
    * Set the {@code MapperFactoryBean} class.
    *
+   * 设置MapperFactoryBean.class
+   *
    * @param mapperFactoryBeanClass
    *          the {@code MapperFactoryBean} class
    * @since 2.0.1
@@ -147,6 +150,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
   /**
    * Set the default scope of scanned mappers.
+   * 扫描Mapper范围
    * <p>
    * Default is {@code null} (equiv to singleton).
    * </p>
@@ -162,17 +166,21 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   /**
    * Configures parent scanner to search for the right interfaces. It can search for all interfaces or just for those
    * that extends a markerInterface or/and those annotated with the annotationClass
+   * 配置扫描器扫描正确的接口  被标记过的  或者有注解的
    */
   public void registerFilters() {
+    //默认扫描所有Mapper接口
     boolean acceptAllInterfaces = true;
 
     // if specified, use the given annotation and / or marker interface
     if (this.annotationClass != null) {
+      //将制定的注解类型添加 到拦截器中
       addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
       acceptAllInterfaces = false;
     }
 
     // override AssignableTypeFilter to ignore matches on the actual marker interface
+    //覆盖 AssignableTypeFilter 以忽略实际标记界面上的匹配的接口
     if (this.markerInterface != null) {
       addIncludeFilter(new AssignableTypeFilter(this.markerInterface) {
         @Override
@@ -185,10 +193,12 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
     if (acceptAllInterfaces) {
       // default include filter that accepts all classes
+      //默认过滤器 扫描全接口
       addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
     }
 
     // exclude package-info.java
+    //package-info.java 用法参照 https://blog.csdn.net/u013084266/article/details/105948544/
     addExcludeFilter((metadataReader, metadataReaderFactory) -> {
       String className = metadataReader.getClassMetadata().getClassName();
       return className.endsWith("package-info");
@@ -198,25 +208,37 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   /**
    * Calls the parent search that will search and register all the candidates. Then the registered objects are post
    * processed to set them as MapperFactoryBeans
+   * 重写了Spring中的doScan方法
+   * 将Mapper.class 注册为 MapperFactoryBeans
    */
   @Override
   public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+    //调用父类ClassPathBeanDefinitionScanner进行扫描
     Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 
+    //mapper接口 不为空
     if (beanDefinitions.isEmpty()) {
       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages)
           + "' package. Please check your configuration.");
     } else {
+      //mybatis做的偷天换日的操作， spring中bean只能为对象， 接口时不能实例化的。
+      //处理Mybatis扫描到的BeanDefinition
       processBeanDefinitions(beanDefinitions);
     }
 
     return beanDefinitions;
   }
 
+  /**
+   * 处理beanDefinition
+   * @param beanDefinitions
+   */
   private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
     AbstractBeanDefinition definition;
     BeanDefinitionRegistry registry = getRegistry();
+    //循环处理所有beanDefinition
     for (BeanDefinitionHolder holder : beanDefinitions) {
+      //get beanDefinition
       definition = (AbstractBeanDefinition) holder.getBeanDefinition();
       boolean scopedProxy = false;
       if (ScopedProxyFactoryBean.class.getName().equals(definition.getBeanClassName())) {
@@ -226,13 +248,17 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
                 "The target bean definition of scoped proxy bean not found. Root bean definition[" + holder + "]"));
         scopedProxy = true;
       }
+      //获取beanName
       String beanClassName = definition.getBeanClassName();
       LOGGER.debug(() -> "Creating MapperFactoryBean with name '" + holder.getBeanName() + "' and '" + beanClassName
           + "' mapperInterface");
 
       // the mapper interface is the original class of the bean
       // but, the actual class of the bean is MapperFactoryBean
+      //Mapper.class是初始bean，但实际bean是MapperFactoryBean<Mapper.class>
+      //通过构造器传参给MapperFactoryBean传入mapper.class name
       definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
+      //设置成MapperFactoryBean
       definition.setBeanClass(this.mapperFactoryBeanClass);
 
       definition.getPropertyValues().add("addToConfig", this.addToConfig);
@@ -270,6 +296,11 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
       if (!explicitFactoryUsed) {
         LOGGER.debug(() -> "Enabling autowire by type for MapperFactoryBean with name '" + holder.getBeanName() + "'.");
+        //factoryBean 中依旧需要SqlSessionFactory ， SqlSessionFactory是已经注册在beanDefinition中了 设置自动注入方式 即可。
+        //mybatis在此处有一个小细节， 在配置SqlSessionFactoryBean的时候 将SqlSessionFactoryBean转换为了SqlSessionFactory 所有可以直接注入
+        //自动注入方式有两种 set方法注入 和构造器注入
+        //自动装配模型有5中  不自动装备， byName byType byConstructor autodetect
+        //autodetect 如果有默认的constructor 则使用构造器装备， 如果没有在使用byType
         definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
       }
 
@@ -288,6 +319,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
           registry.removeBeanDefinition(proxyHolder.getBeanName());
         }
+        //bean注册
         registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
       }
 
@@ -296,6 +328,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
   /**
    * {@inheritDoc}
+   * 重写了Spring扫描器中调用doScan()时判断bean的方法， 将接口扫描进去。
    */
   @Override
   protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
