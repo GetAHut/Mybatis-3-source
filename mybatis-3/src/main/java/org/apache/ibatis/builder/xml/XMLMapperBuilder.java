@@ -473,6 +473,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     if (namespace != null) {
       Class<?> boundType = null;
       try {
+        //通过命名空间获去mapper.class
         boundType = Resources.classForName(namespace);
       } catch (ClassNotFoundException e) {
         // ignore, bound type is not required
@@ -484,6 +485,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         //防止从映射器界面再次加载此资源
         // look at MapperAnnotationBuilder#loadXmlResource
         configuration.addLoadedResource("namespace:" + namespace);
+        //将mapper注册到configuration中的mapperRegistry
         configuration.addMapper(boundType);
       }
     }
