@@ -26,11 +26,11 @@
     </typeAliases>
 
     <!-- 插件配置 -->
-    <plugins>
-        <plugin interceptor="com.github.pagehelper.PageInterceptor" >
-            <property name="pageSizeZero" value="true"/>
-        </plugin>
-    </plugins>
+<!--    <plugins>-->
+<!--        <plugin interceptor="com.github.pagehelper.PageInterceptor" >-->
+<!--            <property name="pageSizeZero" value="true"/>-->
+<!--        </plugin>-->
+<!--    </plugins>-->
 
     <!-- 环境变量 -->
     <environments default="development">

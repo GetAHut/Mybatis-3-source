@@ -108,13 +108,16 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
       //Jdbc会使用提交回滚， Managed没有提交回滚而是使用容器管理生命周期
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
       //获取执行器
-      //Executor 分为两大类：一类是CacheExecutor 和普通Executor
+      //Executor 分为两大类：一类是CacheExecutor 和普通Executor -> BaseExecutor
       //普通Executor执行器类型有三种： SIMPLE, REUSE, BATCH
       //SimpleExecutor：每执行一次select或者update 都会开启一个Statement对象，用完会关闭statement对象
       //ReuseExecutor: 执行update或者select，以sql作为key去查找Statement对象，存在就使用，不存在就创建。用完不会关闭statement对象，
       //              会放在Map<String, Statement>中，重复使用。
       //BatchExecutor: 批处理Executor，与Jdbc批处理一致，没有select；
       final Executor executor = configuration.newExecutor(tx, execType);
+      // Meta- 范湖一个DefaultSqlSession对象
+      // Meta- DefaultSqlSession 是mybatis 一级缓存实现域
+      // Meta- 在与Spring整合后 一级缓存失效于此有关， Spring构建的是SqlSessionTemplate对象
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {
       closeTransaction(tx); // may have fetched a connection so lets call close()

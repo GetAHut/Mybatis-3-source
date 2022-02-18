@@ -467,6 +467,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         //两种配置方式 package  和 mapper
         //其中mapper分三种方式
         //解析package
+        // Meta- mapper -> package
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
@@ -475,6 +476,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
+          // Meta- mapper -> resource
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
             try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
@@ -483,12 +485,14 @@ public class XMLConfigBuilder extends BaseBuilder {
               //解析mapper
               mapperParser.parse();
             }
+            // Meta- mapper -> url
           } else if (resource == null && url != null && mapperClass == null) {
             ErrorContext.instance().resource(url);
             try(InputStream inputStream = Resources.getUrlAsStream(url)){
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
               mapperParser.parse();
             }
+            // Meta- mapper -> mapperClass
           } else if (resource == null && url == null && mapperClass != null) {
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             configuration.addMapper(mapperInterface);

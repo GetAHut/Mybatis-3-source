@@ -51,7 +51,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
     GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
     String sql;
-    //isShrinkWhitespacesInSql 从SQL中删除多余的空格字符。请注意，这也会影响SQL中的文字字符串。
+    // isShrinkWhitespacesInSql 从SQL中删除多余的空格字符。请注意，这也会影响SQL中的文字字符串。
     if (configuration.isShrinkWhitespacesInSql()) {
       sql = parser.parse(removeExtraWhitespaces(originalSql));
     } else {

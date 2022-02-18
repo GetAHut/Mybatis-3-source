@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
 
 /**
  * @className: MybatisTest
@@ -42,8 +43,9 @@ public class MybatisTest {
                 UserMapper mapper = sqlSession.getMapper(UserMapper.class);
                 System.out.println(mapper.getClass());
                 //执行查询
-                User user = mapper.selectById(1);
-                System.out.println(user.getUsername());
+//                User user = mapper.selectById(1);
+                List<User> list = mapper.selectUserList1(1);
+//                System.out.println(user.getUsername());
             } catch (Exception e){
                 e.printStackTrace();
             } finally {

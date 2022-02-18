@@ -103,6 +103,7 @@ public class XMLStatementBuilder extends BaseBuilder {
      *     (#{id}, #{username}, #{password}, #{email}, #{bio}, #{favouriteSection,jdbcType=VARCHAR})
      * </insert>
      */
+    // Meta- 解析selectKey
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
     // 解析sql Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
@@ -120,6 +121,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     }
 
     //创建SqlSource ， 获取sql语句 参数还未确定 将sql解析成一个一个的节点 SqlNode#contents
+    // Meta- 在解析mapper文件中的 select标签 是处理#{}
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     //可选 STATEMENT，PREPARED 或 CALLABLE。
     // 这会让 MyBatis 分别使用 Statement，PreparedStatement 或 CallableStatement，默认值：PREPARED。

@@ -148,8 +148,11 @@ public class DefaultSqlSession implements SqlSession {
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
       //获取MappedStatement对象，
+      // Meta- 在解析全局配置文件以及mapper映射文件的时候，将namespace 以及对应sql标签解析成MappedStatement对象
       MappedStatement ms = configuration.getMappedStatement(statement);
       //最终会调用query方法
+      // Meta- 如果开启了二级缓存cache
+      // Meta- 先调用CacheExecutor  缓存中没有再次调用 BaseExecutor  如果是默认executor 则是SimpleExecutor
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

@@ -729,6 +729,7 @@ public class Configuration {
     }
     //责任链生成代理类 @Intercepts
     //调用所有拦截器对象 plugin方法
+    // Meta- Executor插件处理 生成Jdk动态代理类
     executor = (Executor) interceptorChain.pluginAll(executor);
     //返回的代理对象
     return executor;

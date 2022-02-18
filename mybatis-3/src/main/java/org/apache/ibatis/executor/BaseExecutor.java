@@ -144,6 +144,7 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
+    // Meta- 刷新缓存
     if (queryStack == 0 && ms.isFlushCacheRequired()) {
       //清空一级缓存
       clearLocalCache();
@@ -152,11 +153,13 @@ public abstract class BaseExecutor implements Executor {
     try {
       queryStack++;
       //去一级缓存中拿
+      // Meta- 以及缓存 ： PerpetualCache
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
         handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
       } else {
         //去数据库查询
+        // Meta- 去数据库查询
         list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
       }
     } finally {

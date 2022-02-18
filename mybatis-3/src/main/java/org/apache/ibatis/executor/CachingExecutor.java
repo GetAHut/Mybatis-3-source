@@ -87,6 +87,7 @@ public class CachingExecutor implements Executor {
     // 二级缓存处 解析sql  调用SqlSource中的SqlNode责任链
     BoundSql boundSql = ms.getBoundSql(parameterObject);
     //缓存key 包含：namespace id 参数 sql语句 等；  rowBounds 伪分页
+    // Meta- 缓存key构建
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
@@ -94,15 +95,22 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
+    // Meta- 开启了<cache> 则从上一步解析MappedStatement对象中获取cache
     Cache cache = ms.getCache();
     if (cache != null) {
+      // Meta- 是否需要刷新缓存
       flushCacheIfRequired(ms);
       if (ms.isUseCache() && resultHandler == null) {
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
+          // Meta- 针对缓存装饰器 这里 在此装饰了一层事务相关的缓存
+          // Meta- wikr-@see TransactionalCache#getObject
+          // Meta- 在事务缓存中，如果这条sql需要回滚 则直接清空缓存即可。需要提交才通过存的临时数据提交。
+          // Meta- 通过装饰器一层一层的调用
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
           //缓存中没有去查一级缓存 BaseExecutor
+          // Meta- 二级缓存中没有 则继续调用BaseExecutor （SimpleExecutor实现）
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
           //存入缓存
           tcm.putObject(cache, key, list); // issue #578 and #116
