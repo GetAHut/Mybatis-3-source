@@ -128,7 +128,7 @@ public class MapperAnnotationBuilder {
       assistant.setCurrentNamespace(type.getName());
       parseCache();
       parseCacheRef();
-      //
+      // Meta- 通过 MapperAnnotationBuilder 解析待注解的方法
       for (Method method : type.getMethods()) {
         if (!canHaveStatement(method)) {
           continue;

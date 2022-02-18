@@ -131,13 +131,17 @@ public class XMLMapperBuilder extends BaseBuilder {
       cacheRefElement(context.evalNode("cache-ref"));
       //<cache> 为该namespace开启二级缓存，
       // 二级缓存在mybatis-config.xml中<settings>节点中配置  默认是开启的
+      // Meta- 解析缓存 -> 装饰器模式
+      // Meta- wikr- <cache></cache>
+      // Meta- MapperBuilderAssistant 中构建缓存
       cacheElement(context.evalNode("cache"));
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
       //解析 resultMap
       resultMapElements(context.evalNodes("/mapper/resultMap"));
-      //解析
+      // Meta- 解析sql片段
       sqlElement(context.evalNodes("/mapper/sql"));
       //解析select|insert|update|delete 构建sql语句 处理#{}
+      // Meta- 组合设计模式
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);

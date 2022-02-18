@@ -22,6 +22,8 @@ import org.apache.ibatis.cache.Cache;
 
 /**
  * Lru (least recently used) cache decorator.
+ * Meta- 最近最少使用算法
+ * Meta- 通过 LinkedHashMap 实现
  *
  * @author Clinton Begin
  */
@@ -53,6 +55,7 @@ public class LruCache implements Cache {
 
       @Override
       protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
+        // Meta- 如果超过了 LinkedHashMap 的长度， 则删除第一个节点
         boolean tooBig = size() > size;
         if (tooBig) {
           eldestKey = eldest.getKey();

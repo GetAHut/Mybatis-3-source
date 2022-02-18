@@ -491,6 +491,8 @@ public class SqlSessionFactoryBean
         "Property 'configuration' and 'configLocation' can not specified with together");
 
     //初始化配置 构建SqlSessionFactory
+    // Meta- 构建 SqlSessionFactory -> 自定义配置全局配置文件中的各种属性
+    // Meta- 整合Spring的事务管理器
     this.sqlSessionFactory = buildSqlSessionFactory();
   }
 
@@ -637,6 +639,7 @@ public class SqlSessionFactoryBean
     // 如果没有指定mybatis的事务工厂， 则会开启spring的事务工厂管理器， 拿到spring的事务connection
     // spring的事务同步 管理器 getConnection()
     targetConfiguration.setEnvironment(new Environment(this.environment,
+        // Meta- 创建Spring的事务管理器
         this.transactionFactory == null ? new SpringManagedTransactionFactory() : this.transactionFactory,
         this.dataSource));
 
@@ -675,9 +678,12 @@ public class SqlSessionFactoryBean
   @Override
   public SqlSessionFactory getObject() throws Exception {
     if (this.sqlSessionFactory == null) {
+      // Meta- 通过实现 InitializingBean 在bean初始化调用
       afterPropertiesSet();
     }
 
+    // Meta- SqlSessionFactoryBean 实现的FactoryBean
+    // Meta- sqlSessionFactory 最终注册在Spring中的bean
     return this.sqlSessionFactory;
   }
 

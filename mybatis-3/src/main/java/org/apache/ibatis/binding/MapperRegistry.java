@@ -81,7 +81,7 @@ public class MapperRegistry {
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
-        //构建解析mapper.xml的解析器
+        // Meta- 构建注解的解析器
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
         //解析mapper映射文件 UserMapper.xml
         parser.parse();

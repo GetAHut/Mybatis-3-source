@@ -135,6 +135,9 @@ public class XMLConfigBuilder extends BaseBuilder {
       // read it after objectFactory and objectWrapperFactory issue #631
       //数据源， 事务管理器的配置
       //环境变量可以配置多个， 但是SqlSessionFactory只会使用一个
+      // Meta- 单独使用Mybatis 是直接通过dataSource创建的自身的事务
+      // Meta- 如果和Spring整合后 会在 SqlSessionFactoryBean 中去创建Spring的声明式事务。
+      // Meta- wikr-@see SqlSessionFactoryBean#buildSqlSessionFactory
       environmentsElement(root.evalNode("environments"));
       //解析数据库厂商标识 <databaseIdProvider>
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
@@ -143,6 +146,8 @@ public class XMLConfigBuilder extends BaseBuilder {
       //<mappers>标签解析
       //<mappers> 标签配置有两种方式： <Mapper> 和 <package>
       //  其中 <mapper>有三种属性： resource url class
+      // Meta- mapper 解析
+      // Meta- sql解析
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);

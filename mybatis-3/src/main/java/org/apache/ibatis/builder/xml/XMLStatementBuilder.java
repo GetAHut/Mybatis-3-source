@@ -92,7 +92,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // 解析 selectKey节点 Parse selectKey after includes and remove them.
     //selectKey  示例
-    /**
+    /*
      * <insert id="insertAuthor">
      *   <selectKey keyProperty="id" resultType="int" order="BEFORE">
      *     select CAST(RANDOM()*1000000 as INTEGER) a from SYSIBM.SYSDUMMY1

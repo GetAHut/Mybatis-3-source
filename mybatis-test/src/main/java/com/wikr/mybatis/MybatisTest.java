@@ -28,6 +28,7 @@ public class MybatisTest {
             //将resource读入configuration配置类中
             reader = Resources.getResourceAsReader(resource);
             //构建 SqlSessionFactory
+            // Meta- 解析全局配置文件
             SqlSessionFactory sqlMapper = new SqlSessionFactoryBuilder().build(reader);
             //数据源 执行器 sql执行
             SqlSession sqlSession = sqlMapper.openSession();
